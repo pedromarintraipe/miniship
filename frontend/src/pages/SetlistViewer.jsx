@@ -136,23 +136,23 @@ export default function SetlistViewer({ user }) {
           </div>
         )}
 
-        <ul className="space-y-4 relative z-10">
+        <ul className="space-y-3 md:space-y-4 relative z-10">
           {setlist.SetlistSong.map((ss, idx) => (
-            <li key={ss.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
-              <div className="flex items-center gap-5 mb-3 md:mb-0">
-                <span className="text-slate-600 font-bold font-mono text-lg w-6 text-center">{idx + 1}</span>
-                <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-white/10 transition-colors">
-                  <Music size={20} className="text-white" />
+            <li key={ss.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 md:p-5 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
+              <div className="flex items-center gap-3 md:gap-5 mb-3 md:mb-0">
+                <span className="text-slate-600 font-bold font-mono text-base md:text-lg w-5 md:w-6 text-center">{idx + 1}</span>
+                <div className="p-2 md:p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-white/10 transition-colors hidden xs:block">
+                  <Music className="text-white w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg text-white mb-1 group-hover:text-blue-400 transition-colors">{ss.song.title}</h3>
-                  <div className="text-sm text-slate-400 font-medium">{ss.song.artist}</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-base md:text-lg text-white mb-0.5 md:mb-1 group-hover:text-blue-400 transition-colors truncate pr-2">{ss.song.title}</h3>
+                  <div className="text-xs md:text-sm text-slate-400 font-medium truncate">{ss.song.artist}</div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 pl-14 md:pl-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-400 font-bold uppercase tracking-wider">Tono:</span>
+              <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 pl-8 md:pl-0 w-full md:w-auto">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <span className="text-[10px] md:text-sm text-slate-400 font-bold uppercase tracking-wider hidden sm:inline-block">Tono:</span>
                   <input 
                     type="text" 
                     value={ss.selectedKey} 
@@ -162,7 +162,7 @@ export default function SetlistViewer({ user }) {
                         setSetlist({...setlist, SetlistSong: ss_copy});
                     }}
                     onBlur={(e) => updateKey(ss.id, e.target.value)}
-                    className="w-16 p-2 text-center bg-white/5 border border-white/10 rounded-lg text-sm font-bold text-white outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all font-mono"
+                    className="w-12 md:w-16 p-1.5 md:p-2 text-center bg-white/5 border border-white/10 rounded-lg text-xs md:text-sm font-bold text-white outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all font-mono"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -179,12 +179,12 @@ export default function SetlistViewer({ user }) {
                         }))
                       }
                     }}
-                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/5 rounded-xl text-sm font-bold text-white transition-all backdrop-blur-md"
+                    className="px-3 md:px-5 py-1.5 md:py-2.5 bg-white/10 hover:bg-white/20 border border-white/5 rounded-lg md:rounded-xl text-xs md:text-sm font-bold text-white transition-all backdrop-blur-md whitespace-nowrap"
                   >
                     Ver Letra
                   </Link>
-                  <button onClick={() => setSongToDelete({ id: ss.id, title: ss.song.title })} title="Remover del setlist" className="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-xl border border-red-500/20 transition-colors">
-                    <Trash2 size={18} />
+                  <button onClick={() => setSongToDelete({ id: ss.id, title: ss.song.title })} title="Remover del setlist" className="p-1.5 md:p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-lg md:rounded-xl border border-red-500/20 transition-colors">
+                    <Trash2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                   </button>
                 </div>
               </div>

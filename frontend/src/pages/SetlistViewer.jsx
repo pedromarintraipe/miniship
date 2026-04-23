@@ -49,53 +49,58 @@ export default function SetlistViewer({ user }) {
   if (!setlist) return <div className="p-8">Cargando...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8 flex items-center gap-4">
-        <button onClick={() => window.history.back()} className="p-2 bg-slate-800 rounded-lg hover:bg-slate-700">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-3xl font-bold">{setlist.name}</h1>
-          <p className="text-slate-400">Setlist</p>
+    <div className="max-w-5xl mx-auto pb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 relative z-10">
+        <div className="flex items-center gap-4">
+          <button onClick={() => window.history.back()} className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 mb-2">{setlist.name}</h1>
+            <p className="text-slate-400 font-medium">Gestión de Setlist</p>
+          </div>
         </div>
       </div>
 
-      <div className="mb-8 p-6 bg-slate-800 border border-slate-700 rounded-xl">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Canciones ({setlist.SetlistSong.length})</h2>
-          <button onClick={() => setShowAdd(!showAdd)} className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-bold">
-            <Plus size={16} /> Agregar
+      <div className="mb-8 p-6 md:p-8 bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden">
+        <div className="flex justify-between items-center mb-6 relative z-10">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+            Repertorio 
+            <span className="text-sm px-3 py-1 bg-white/10 rounded-full font-medium">{setlist.SetlistSong.length}</span>
+          </h2>
+          <button onClick={() => setShowAdd(!showAdd)} className="flex items-center gap-2 px-5 py-3 bg-white text-black hover:bg-slate-200 rounded-full text-sm font-bold transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+            <Plus size={16} /> Agregar Canción
           </button>
         </div>
 
         {showAdd && (
-          <div className="mb-6 p-4 bg-slate-900 rounded-lg border border-slate-700 max-h-60 overflow-y-auto">
-            <div className="text-sm text-slate-400 mb-2">Selecciona una canción para agregar:</div>
+          <div className="mb-8 p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 max-h-72 overflow-y-auto custom-scrollbar relative z-10 shadow-inner">
+            <div className="text-sm font-bold text-blue-400 mb-3 sticky top-0 bg-black/40 backdrop-blur-md pb-2 z-10">Selecciona una canción:</div>
             {availableSongs.map(s => (
-              <button key={s.id} onClick={() => addSong(s)} className="block w-full text-left px-3 py-2 hover:bg-slate-800 rounded mb-1">
-                {s.title} <span className="text-slate-500">- {s.artist}</span>
+              <button key={s.id} onClick={() => addSong(s)} className="block w-full text-left px-4 py-3 hover:bg-white/10 border border-transparent hover:border-white/5 rounded-xl mb-1 transition-colors text-white font-medium">
+                {s.title} <span className="text-slate-500 font-normal opacity-70 ml-2"> {s.artist}</span>
               </button>
             ))}
           </div>
         )}
 
-        <ul className="space-y-3">
+        <ul className="space-y-4 relative z-10">
           {setlist.SetlistSong.map((ss, idx) => (
-            <li key={ss.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-900/50 border border-slate-700/50 rounded-lg group">
-              <div className="flex items-center gap-4 mb-3 md:mb-0">
-                <span className="text-slate-500 font-mono w-6 text-center">{idx + 1}</span>
-                <div className="p-2 bg-slate-700 rounded">
-                  <Music size={16} className="text-purple-400" />
+            <li key={ss.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
+              <div className="flex items-center gap-5 mb-3 md:mb-0">
+                <span className="text-slate-600 font-bold font-mono text-lg w-6 text-center">{idx + 1}</span>
+                <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-white/10 transition-colors">
+                  <Music size={20} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">{ss.song.title}</h3>
-                  <div className="text-sm text-slate-400">{ss.song.artist}</div>
+                  <h3 className="font-bold text-lg text-white mb-1 group-hover:text-blue-400 transition-colors">{ss.song.title}</h3>
+                  <div className="text-sm text-slate-400 font-medium">{ss.song.artist}</div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 pl-10 md:pl-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-400">Tono:</span>
+              <div className="flex items-center gap-4 pl-14 md:pl-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-slate-400 font-bold uppercase tracking-wider">Tono:</span>
                   <input 
                     type="text" 
                     value={ss.selectedKey} 
@@ -105,16 +110,20 @@ export default function SetlistViewer({ user }) {
                         setSetlist({...setlist, SetlistSong: ss_copy});
                     }}
                     onBlur={(e) => updateKey(ss.id, e.target.value)}
-                    className="w-16 p-1 text-center bg-slate-800 border border-slate-600 rounded text-sm font-bold outline-none focus:border-blue-500"
+                    className="w-16 p-2 text-center bg-white/5 border border-white/10 rounded-lg text-sm font-bold text-white outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all font-mono"
                   />
                 </div>
-                <Link to={`/songs/${ss.song.id}`} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold transition-colors">
-                  Ver Canto
+                <Link to={`/songs/${ss.song.id}`} className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/5 rounded-xl text-sm font-bold text-white transition-all backdrop-blur-md">
+                  Ver Letra
                 </Link>
               </div>
             </li>
           ))}
-          {setlist.SetlistSong.length === 0 && <div className="text-center text-slate-500 py-4">No hay canciones en este setlist.</div>}
+          {setlist.SetlistSong.length === 0 && (
+            <div className="text-center text-slate-400 py-8 font-medium">
+              No hay canciones en este setlist. Comienza agregando una.
+            </div>
+          )}
         </ul>
       </div>
     </div>

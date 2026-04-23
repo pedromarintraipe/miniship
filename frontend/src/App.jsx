@@ -7,7 +7,7 @@ import SongImporter from './pages/SongImporter';
 import SetlistList from './pages/SetlistList';
 import SetlistViewer from './pages/SetlistViewer';
 import Users from './pages/Users';
-import Sidebar from './components/Sidebar';
+import Navbar from './components/Navbar';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -23,9 +23,13 @@ export default function App() {
 
   return (
     <Router>
-      <div className="flex flex-col md:flex-row h-screen bg-slate-900 text-slate-100 font-sans overflow-hidden">
-        <Sidebar user={user} onLogout={() => { setUser(null); localStorage.removeItem('worship_user'); }} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">
+      <div className="min-h-screen text-slate-100 font-sans selection:bg-white/20">
+        <div className="ambient-bg"></div>
+        <div className="ambient-noise"></div>
+        
+        <Navbar user={user} onLogout={() => { setUser(null); localStorage.removeItem('worship_user'); }} />
+        
+        <main className="pt-24 pb-32 md:pt-32 md:pb-12 px-4 md:px-8 max-w-7xl mx-auto">
           <Routes>
             <Route path="/" element={<Navigate to="/songs" replace />} />
             <Route path="/songs" element={<SongList user={user} />} />

@@ -38,46 +38,49 @@ export default function SongList({ user }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 relative z-10">
         <div>
-          <h1 className="text-3xl font-bold">Canciones</h1>
-          <p className="text-slate-400">Repertorio completo del ministerio</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 mb-2">Repertorio</h1>
+          <p className="text-slate-400 font-medium">Bases musicales y letras del ministerio</p>
         </div>
         
-        <div className="flex gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="relative flex-1 sm:w-72">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
-              placeholder="Buscar canción o artista..."
+              placeholder="Buscar por título o artista..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-12 pr-4 py-3 bg-black/40 border border-white/10 rounded-full focus:ring-2 focus:ring-white/20 focus:border-white/30 outline-none backdrop-blur-xl transition-all text-sm font-medium placeholder:text-slate-500"
             />
           </div>
-          <Link to="/songs/import" className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+          <Link to="/songs/import" className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-slate-200 rounded-full font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
             <Plus size={18} />
-            <span className="hidden sm:inline">Nueva Canción</span>
+            <span>Añadir Canción</span>
           </Link>
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
         {songs.length === 0 ? (
-          <div className="p-8 text-center text-slate-400">
+          <div className="p-12 text-center text-slate-400 font-medium">
             No se encontraron canciones.
           </div>
         ) : (
-          <ul className="divide-y divide-slate-700">
+          <ul className="divide-y divide-white/5">
             {songs.map(song => (
               <li key={song.id} className="relative group">
-                <Link to={`/songs/${song.id}`} className="flex items-center p-4 hover:bg-slate-700/50 transition-colors">
-                  <div className="p-3 bg-slate-700 rounded-lg mr-4">
-                    <Music size={20} className="text-blue-400" />
+                <Link to={`/songs/${song.id}`} className="flex items-center p-5 hover:bg-white/5 transition-all">
+                  <div className="p-3 bg-white/5 rounded-2xl mr-5 border border-white/5 group-hover:border-white/10 transition-colors">
+                    <Music size={22} className="text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg">{song.title}</h3>
-                    <p className="text-sm text-slate-400">{song.artist || 'Desconocido'} • Tono: {song.originalKey}</p>
+                    <h3 className="font-bold text-lg text-white mb-1 group-hover:text-blue-400 transition-colors">{song.title}</h3>
+                    <p className="text-sm text-slate-400 font-medium">{song.artist || 'Desconocido'} <span className="mx-2 opacity-50">•</span> Tono: <span className="text-slate-300 bg-white/10 px-2 py-0.5 rounded-md">{song.originalKey}</span></p>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity mr-4 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                 </Link>
                 {user?.role === 'ADMIN' && (
@@ -86,9 +89,9 @@ export default function SongList({ user }) {
                       e.preventDefault();
                       setDeletingId(song.id);
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                    className="absolute right-6 top-1/2 -translate-y-1/2 p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors backdrop-blur-md"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={18} />
                   </button>
                 )}
               </li>

@@ -1,6 +1,6 @@
-# 🎸 Worship App - Gestión para Ministerio de Alabanza
+# 🎸 MinisWorship - Gestión para Ministerio de Alabanza
 
-Worship App es una aplicación web Full-Stack diseñada específicamente para simplificar la vida de los ministerios de alabanza. Permite gestionar repertorios de canciones, importar letras con sus acordes exactos mediante Web Scraping, transponer tonos en tiempo real, armar setlists (listas de reproducción para eventos) y brindar interfaces de usuario diferenciadas según el rol (Músico o Vocalista).
+MinisWorship es una aplicación web Full-Stack diseñada específicamente para simplificar la vida de los ministerios de alabanza. Permite gestionar repertorios de canciones, importar letras con sus acordes exactos mediante Web Scraping, transponer tonos en tiempo real, armar setlists (listas de reproducción para eventos) y brindar interfaces de usuario diferenciadas según el rol (Músico o Vocalista).
 
 ## ✨ Características Principales
 

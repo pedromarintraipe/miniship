@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { fetchApi } from '../utils/api';
-import { Music, Mic2, Guitar, Lock, Mail, UserPlus, LogIn, Users } from 'lucide-react';
+import { Mic2, Guitar, Lock, Mail, UserPlus, LogIn, Users } from 'lucide-react';
+import logoBlanco from '../assets/images/logo-blanco.png';
 
 export default function Login({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -45,14 +46,11 @@ export default function Login({ onLogin }) {
         {/* Glow Effect */}
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-orange-500/20 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="relative z-10">
-          <div className="flex justify-center mb-8">
-            <div className="p-4 bg-white/5 rounded-3xl border border-white/10 shadow-inner">
-              <Music size={40} className="text-white" />
-            </div>
+          <div className="flex justify-center mb-6">
+            <img src={logoBlanco} alt="MinisWorship" className="w-32 md:w-40 h-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]" />
           </div>
           
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-extrabold tracking-tight mb-2 text-white">Worship App</h2>
+          <div className="text-center mb-8">
             <p className="text-slate-400 text-sm font-medium">
               {isRegister ? 'Crea tu cuenta personalizada' : 'Inicia sesión para acceder'}
             </p>

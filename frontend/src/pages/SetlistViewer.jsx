@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
-import { ArrowLeft, Music, Plus } from 'lucide-react';
+import { ArrowLeft, Music, Plus, Trash2, Edit2 } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
+import PromptModal from '../components/PromptModal';
 
 export default function SetlistViewer({ user }) {
   const { id } = useParams();
   const [setlist, setSetlist] = useState(null);
   const [availableSongs, setAvailableSongs] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [songToDelete, setSongToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameLoading, setRenameLoading] = useState(false);
 
   useEffect(() => {
     fetchApi(`/setlists/${id}`).then(setSetlist).catch(console.error);
@@ -33,6 +40,23 @@ export default function SetlistViewer({ user }) {
     }
   };
 
+  const executeRemoveSong = async () => {
+    if (!songToDelete) return;
+    setIsDeleting(true);
+    try {
+      await fetchApi(`/setlists/songs/${songToDelete.id}`, {
+        method: 'DELETE'
+      });
+      const updated = await fetchApi(`/setlists/${id}`);
+      setSetlist(updated);
+      setSongToDelete(null);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const updateKey = async (ssId, newKey) => {
     try {
       await fetchApi(`/setlists/songs/${ssId}`, {
@@ -46,6 +70,23 @@ export default function SetlistViewer({ user }) {
     }
   };
 
+  const handleRename = async (newName) => {
+    setRenameLoading(true);
+    try {
+      await fetchApi(`/setlists/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ name: newName }) // it accepts {name, description, date}
+      });
+      const updated = await fetchApi(`/setlists/${id}`);
+      setSetlist(updated);
+      setIsRenaming(false);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setRenameLoading(false);
+    }
+  };
+
   if (!setlist) return <div className="p-8">Cargando...</div>;
 
   return (
@@ -56,7 +97,18 @@ export default function SetlistViewer({ user }) {
             <ArrowLeft size={20} className="text-white" />
           </button>
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 mb-2">{setlist.name}</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">{setlist.name}</h1>
+              {user?.role === 'ADMIN' && (
+                <button 
+                  onClick={() => setIsRenaming(true)} 
+                  className="p-1.5 bg-white/5 hover:bg-white/10 hover:text-blue-400 text-slate-400 rounded-lg transition-colors border border-white/5 shadow-sm"
+                  title="Renombrar Setlist"
+                >
+                  <Edit2 size={16} />
+                </button>
+              )}
+            </div>
             <p className="text-slate-400 font-medium">Gestión de Setlist</p>
           </div>
         </div>
@@ -113,9 +165,28 @@ export default function SetlistViewer({ user }) {
                     className="w-16 p-2 text-center bg-white/5 border border-white/10 rounded-lg text-sm font-bold text-white outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all font-mono"
                   />
                 </div>
-                <Link to={`/songs/${ss.song.id}`} className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/5 rounded-xl text-sm font-bold text-white transition-all backdrop-blur-md">
-                  Ver Letra
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link 
+                    to={`/songs/${ss.song.id}`} 
+                    state={{ 
+                      setCtx: {
+                        id: setlist.id,
+                        name: setlist.name,
+                        songs: setlist.SetlistSong.map(s => ({
+                          id: s.song.id,
+                          title: s.song.title,
+                          key: s.selectedKey
+                        }))
+                      }
+                    }}
+                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/5 rounded-xl text-sm font-bold text-white transition-all backdrop-blur-md"
+                  >
+                    Ver Letra
+                  </Link>
+                  <button onClick={() => setSongToDelete({ id: ss.id, title: ss.song.title })} title="Remover del setlist" className="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-xl border border-red-500/20 transition-colors">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
             </li>
           ))}
@@ -126,6 +197,26 @@ export default function SetlistViewer({ user }) {
           )}
         </ul>
       </div>
+
+      <PromptModal
+        isOpen={isRenaming}
+        onClose={() => setIsRenaming(false)}
+        onSubmit={handleRename}
+        title="Renombrar Setlist"
+        placeholder={setlist.name}
+        submitText="Guardar Cambios"
+        loading={renameLoading}
+      />
+
+      <ConfirmModal 
+        isOpen={!!songToDelete} 
+        onClose={() => setSongToDelete(null)} 
+        onConfirm={executeRemoveSong} 
+        title="Remover Canción" 
+        message={`¿Estás seguro que deseas quitar "${songToDelete?.title}" de la lista? Esta acción no elimina la canción del sistema, sólo la quita de este evento.`}
+        confirmText="Remover"
+        loading={isDeleting} 
+      />
     </div>
   );
 }

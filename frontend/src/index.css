@@ -15,7 +15,7 @@
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  background: 
+  background:
     radial-gradient(circle at -10% 40%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
     radial-gradient(circle at 110% 80%, rgba(249, 115, 22, 0.15) 0%, transparent 60%),
     radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
@@ -36,9 +36,11 @@
 ruby {
   ruby-align: start;
 }
+
 rt {
   font-size: 0.8em;
-  color: #60a5fa; /* Tailwind blue-400 */
+  color: #60a5fa;
+  /* Tailwind blue-400 */
   font-weight: bold;
   transform: translateY(-2px);
 }

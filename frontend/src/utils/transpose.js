@@ -8,7 +8,9 @@ function normalizeNote(note) {
 }
 
 function getNoteIndex(note) {
-  return SCALE.indexOf(normalizeNote(note));
+  const match = note.match(/^([A-G][b#]?)/);
+  if (!match) return -1;
+  return SCALE.indexOf(normalizeNote(match[1]));
 }
 
 export function transposeChords(chords, originalKey, targetKey) {

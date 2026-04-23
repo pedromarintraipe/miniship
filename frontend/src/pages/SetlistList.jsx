@@ -3,27 +3,32 @@ import { Link } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
 import { Plus, ListMusic, Calendar, Trash2 } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
+import PromptModal from '../components/PromptModal';
 
 export default function SetlistList({ user }) {
   const [setlists, setSetlists] = useState([]);
   const [deletingId, setDeletingId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCreatingModalOpen, setIsCreatingModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     fetchApi('/setlists').then(setSetlists).catch(console.error);
   }, []);
 
-  const handleCreate = async () => {
-    const name = prompt('Nombre del setlist:');
-    if (!name) return;
+  const handleCreate = async (name) => {
+    setIsCreating(true);
     try {
       const data = await fetchApi('/setlists', {
         method: 'POST',
         body: JSON.stringify({ name, date: new Date().toISOString() })
       });
       setSetlists([data, ...setlists]);
+      setIsCreatingModalOpen(false);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -51,7 +56,7 @@ export default function SetlistList({ user }) {
           <p className="text-slate-400 font-medium">Planificación y listas para eventos</p>
         </div>
         
-        <button onClick={handleCreate} className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-slate-200 rounded-full font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
+        <button onClick={() => setIsCreatingModalOpen(true)} className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-slate-200 rounded-full font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
           <Plus size={18} />
           <span>Añadir Setlist</span>
         </button>
@@ -105,6 +110,16 @@ export default function SetlistList({ user }) {
           </div>
         ))}
       </div>
+
+      <PromptModal
+        isOpen={isCreatingModalOpen}
+        onClose={() => setIsCreatingModalOpen(false)}
+        onSubmit={handleCreate}
+        title="Crear Nuevo Setlist"
+        placeholder="Ej: Culto Domingo Mañana"
+        submitText="Crear Setlist"
+        loading={isCreating}
+      />
 
       <ConfirmModal 
         isOpen={!!deletingId}

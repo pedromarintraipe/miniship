@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LogOut, LayoutGrid, Search, Layers, User as UserIcon } from 'lucide-react';
+import logoBlanco from '../assets/images/logo-blanco.png';
 
 export default function Navbar({ user, onLogout }) {
   const location = useLocation();
@@ -49,18 +50,13 @@ export default function Navbar({ user, onLogout }) {
 
       {/* Desktop Top Left Logo */}
       <div className="hidden md:flex fixed top-6 left-8 z-50 items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-          <div className="w-5 h-5 rounded-full border-4 border-black"></div>
-        </div>
+        <img src={logoBlanco} alt="MinisWorship Logo" className="h-14 w-auto opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
       </div>
 
       {/* Mobile Top Header */}
       <div className="md:hidden fixed top-0 w-full flex items-center justify-between p-4 bg-black/80 backdrop-blur-lg border-b border-white/5 z-50">
         <div className="font-bold text-lg flex items-center gap-2 text-white">
-          <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full border-2 border-black"></div>
-          </div>
-          Worship
+          <img src={logoBlanco} alt="MinisWorship Logo" className="h-10 w-auto" />
         </div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-slate-400">{user.name}</span>

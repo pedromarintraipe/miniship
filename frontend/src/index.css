@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100 bg-fixed m-0 p-0 font-sans;
+  }
+}
+
+/* Custom styles for ruby annotations to align chords beautifully */
+ruby {
+  ruby-align: start;
+}
+rt {
+  font-size: 0.8em;
+  color: #60a5fa; /* Tailwind blue-400 */
+  font-weight: bold;
+  transform: translateY(-2px);
+}

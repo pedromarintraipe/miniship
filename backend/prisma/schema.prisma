@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VOCAL
+  MUSICIAN
+  ADMIN
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(VOCAL)
+  fontSize   Int      @default(16)
+  showChords Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Song {
+  id           String         @id @default(uuid())
+  title        String
+  artist       String?
+  originalKey  String
+  structure    Json           // Stores sections, lines, lyrics, and chords
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  SetlistSong  SetlistSong[]
+}
+
+model Setlist {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  date        DateTime?
+  createdAt   DateTime      @default(now())
+  SetlistSong SetlistSong[]
+}
+
+model SetlistSong {
+  id          String   @id @default(uuid())
+  setlist     Setlist  @relation(fields: [setlistId], references: [id], onDelete: Cascade)
+  setlistId   String
+  song        Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId      String
+  position    Int
+  selectedKey String
+  notes       String?
+  createdAt   DateTime @default(now())
+}

@@ -18,17 +18,29 @@ router.post('/scrape', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const { search } = req.query;
+  const { search, userId, role } = req.query;
   const where = search ? {
     OR: [
       { title: { contains: search, mode: 'insensitive' } },
       { artist: { contains: search, mode: 'insensitive' } },
     ]
   } : {};
+  
+  const includeVariants = { select: { id: true, name: true } };
+  
+  if (role !== 'ADMIN') {
+    includeVariants.where = {
+      OR: [
+        { isPublic: true },
+        ...(userId ? [{ userId }] : [])
+      ]
+    };
+  }
+
   const songs = await prisma.song.findMany({ 
     where, 
     orderBy: { title: 'asc' },
-    include: { SongVariant: { select: { id: true, name: true } } }
+    include: { SongVariant: includeVariants }
   });
   res.json(songs);
 });

@@ -55,7 +55,7 @@ export default function SongViewer({ user, updateUserPreferences }) {
       }
     }).catch(console.error);
 
-    fetchApi(`/variants?songId=${id}&userId=${user.id}`).then(data => {
+    fetchApi(`/variants?songId=${id}&userId=${user.id}&role=${user.role}`).then(data => {
       setVariants(data);
       if (currentIndex !== -1 && setCtx.songs[currentIndex].variantId) {
         setSelectedVariantId(setCtx.songs[currentIndex].variantId);

@@ -13,12 +13,20 @@ export default function SongList({ user }) {
   // Debounce search
   useEffect(() => {
     const delay = setTimeout(() => {
-      fetchApi(`/songs${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (user?.id) {
+        params.append('userId', user.id);
+        params.append('role', user.role);
+      }
+      
+      const queryString = params.toString();
+      fetchApi(`/songs${queryString ? `?${queryString}` : ''}`)
         .then(setSongs)
         .catch(console.error);
     }, 300); // 300ms debounce
     return () => clearTimeout(delay);
-  }, [search]);
+  }, [search, user]);
 
   const handleDelete = async () => {
     if (!deletingId) return;

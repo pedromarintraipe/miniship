@@ -18,8 +18,8 @@ export default function SetlistViewer({ user }) {
 
   useEffect(() => {
     fetchApi(`/setlists/${id}`).then(setSetlist).catch(console.error);
-    fetchApi('/songs').then(setAvailableSongs).catch(console.error);
-  }, [id]);
+    fetchApi(`/songs${user?.id ? `?userId=${user.id}&role=${user.role}` : ''}`).then(setAvailableSongs).catch(console.error);
+  }, [id, user]);
 
   const addSong = async (song, variantId = null) => {
     try {

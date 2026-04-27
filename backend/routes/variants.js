@@ -9,18 +9,18 @@ const router = express.Router();
 // Since we don't have full auth middleware injecting user ID right now (we simulate user roles on frontend),
 // we might need to pass userId as a query parameter for now.
 router.get('/', async (req, res) => {
-  const { songId, userId } = req.query;
+  const { songId, userId, role } = req.query;
   if (!songId) return res.status(400).json({ error: 'songId required' });
 
-  const where = {
-    songId,
-    OR: [
+  const where = { songId };
+  
+  if (role !== 'ADMIN') {
+    where.OR = [
       { isPublic: true },
-    ]
-  };
-
-  if (userId) {
-    where.OR.push({ userId });
+    ];
+    if (userId) {
+      where.OR.push({ userId });
+    }
   }
 
   const variants = await prisma.songVariant.findMany({

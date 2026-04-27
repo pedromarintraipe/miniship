@@ -241,6 +241,46 @@ export default function SongViewer({ user, updateUserPreferences }) {
           </div>
           
           <div className="flex flex-wrap items-center gap-2 bg-white/5 border border-white/10 p-2 rounded-2xl mx-4">
+            {variants.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowVariantMenu(!showVariantMenu)}
+                  className="px-3 py-1.5 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors border border-white/10 bg-black/20"
+                  title="Cambiar Versión/Arreglo"
+                >
+                  <GitBranch size={16} className={selectedVariantId ? 'text-purple-400' : 'text-slate-400'} />
+                  <span className="text-sm font-bold text-white max-w-[80px] md:max-w-[120px] truncate">
+                    {selectedVariantId ? variants.find(v => v.id === selectedVariantId)?.name : 'Original'}
+                  </span>
+                  <ChevronDown size={14} className={`text-slate-400 transition-transform ${showVariantMenu ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showVariantMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowVariantMenu(false)}></div>
+                    <div className="absolute top-full mt-2 left-0 w-48 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+                      <button
+                        onClick={() => { setSelectedVariantId(''); setShowVariantMenu(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${!selectedVariantId ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                      >
+                        Original
+                      </button>
+                      {variants.map(v => (
+                        <button
+                          key={v.id}
+                          onClick={() => { setSelectedVariantId(v.id); setShowVariantMenu(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-t border-white/5 ${selectedVariantId === v.id ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                        >
+                          {v.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            {variants.length > 0 && <div className="w-px h-6 bg-white/10 mx-1 hidden lg:block"></div>}
+            
             {isMusician && (
               <>
                 <span className="text-sm text-slate-300 mr-2 font-bold pl-2 hidden lg:inline">Tono: <span className="text-white">{targetKey}</span></span>
@@ -343,46 +383,6 @@ export default function SongViewer({ user, updateUserPreferences }) {
         </div>
       )}
 
-      {/* Select Variant Wrapper */}
-      {!isFocusMode && variants.length > 0 && (
-        <div className="flex justify-center -mt-6 mb-6 relative z-30">
-          <div className="relative">
-            <button
-              onClick={() => setShowVariantMenu(!showVariantMenu)}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-xl px-5 py-2.5 rounded-full flex items-center gap-3 transition-colors shadow-lg"
-            >
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Versión:</span>
-              <span className="text-sm font-bold text-white pr-2">
-                {selectedVariantId ? variants.find(v => v.id === selectedVariantId)?.name : 'Original'}
-              </span>
-              <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${showVariantMenu ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showVariantMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowVariantMenu(false)}></div>
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-56 bg-black/80 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <button
-                    onClick={() => { setSelectedVariantId(''); setShowVariantMenu(false); }}
-                    className={`w-full text-left px-5 py-3.5 text-sm font-medium transition-colors ${!selectedVariantId ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
-                  >
-                    Original
-                  </button>
-                  {variants.map(v => (
-                    <button
-                      key={v.id}
-                      onClick={() => { setSelectedVariantId(v.id); setShowVariantMenu(false); }}
-                      className={`w-full text-left px-5 py-3.5 text-sm font-medium transition-colors border-t border-white/5 ${selectedVariantId === v.id ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
-                    >
-                      {v.name}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       <div className={`space-y-12 ${isFocusMode ? 'px-4 md:px-24 mx-auto max-w-5xl pt-4' : 'px-4'}`} style={{ fontSize: `${fontSize}px` }}>
         {(selectedVariantId ? variants.find(v => v.id === selectedVariantId)?.structure : song.structure)?.sections?.map((section, idx) => {

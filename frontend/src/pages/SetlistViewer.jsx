@@ -21,12 +21,13 @@ export default function SetlistViewer({ user }) {
     fetchApi('/songs').then(setAvailableSongs).catch(console.error);
   }, [id]);
 
-  const addSong = async (song) => {
+  const addSong = async (song, variantId = null) => {
     try {
       const resp = await fetchApi(`/setlists/${id}/songs`, {
         method: 'POST',
         body: JSON.stringify({
           songId: song.id,
+          variantId,
           position: setlist.SetlistSong.length,
           selectedKey: song.originalKey
         })
@@ -156,9 +157,16 @@ export default function SetlistViewer({ user }) {
           <div className="mb-8 p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 max-h-72 overflow-y-auto custom-scrollbar relative z-10 shadow-inner">
             <div className="text-sm font-bold text-blue-400 mb-3 sticky top-0 bg-black/40 backdrop-blur-md pb-2 z-10">Selecciona una canción:</div>
             {availableSongs.map(s => (
-              <button key={s.id} onClick={() => addSong(s)} className="block w-full text-left px-4 py-3 hover:bg-white/10 border border-transparent hover:border-white/5 rounded-xl mb-1 transition-colors text-white font-medium">
-                {s.title} <span className="text-slate-500 font-normal opacity-70 ml-2"> {s.artist}</span>
-              </button>
+              <div key={s.id} className="mb-1">
+                <button onClick={() => addSong(s)} className="block w-full text-left px-4 py-3 hover:bg-white/10 border border-transparent hover:border-white/5 rounded-xl transition-colors text-white font-medium">
+                  {s.title} <span className="text-slate-500 font-normal opacity-70 ml-2"> {s.artist} {s.SongVariant?.length > 0 ? '(Original)' : ''}</span>
+                </button>
+                {s.SongVariant?.map(v => (
+                  <button key={v.id} onClick={() => addSong(s, v.id)} className="block w-full text-left px-4 py-2 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20 rounded-xl transition-colors text-purple-300 font-medium pl-8 text-sm">
+                    ↳ Variante: {v.name}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         )}
@@ -172,7 +180,9 @@ export default function SetlistViewer({ user }) {
                   <Music className="text-white w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base md:text-lg text-white mb-0.5 md:mb-1 group-hover:text-blue-400 transition-colors truncate pr-2">{ss.song.title}</h3>
+                  <h3 className="font-bold text-base md:text-lg text-white mb-0.5 md:mb-1 group-hover:text-blue-400 transition-colors truncate pr-2">
+                    {ss.song.title} {ss.variant ? <span className="text-purple-400 text-sm ml-2">({ss.variant.name})</span> : ''}
+                  </h3>
                   <div className="text-xs md:text-sm text-slate-400 font-medium truncate">{ss.song.artist}</div>
                 </div>
               </div>

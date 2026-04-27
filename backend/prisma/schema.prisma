@@ -14,14 +14,15 @@ enum Role {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  password   String
-  role       Role     @default(VOCAL)
-  fontSize   Int      @default(16)
-  showChords Boolean  @default(true)
-  createdAt  DateTime @default(now())
+  id          String        @id @default(uuid())
+  name        String
+  email       String        @unique
+  password    String
+  role        Role          @default(VOCAL)
+  fontSize    Int           @default(16)
+  showChords  Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  SongVariant SongVariant[]
 }
 
 model Song {
@@ -33,6 +34,7 @@ model Song {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   SetlistSong  SetlistSong[]
+  SongVariant  SongVariant[]
 }
 
 model Setlist {
@@ -50,8 +52,24 @@ model SetlistSong {
   setlistId   String
   song        Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId      String
+  variant     SongVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId   String?
   position    Int
   selectedKey String
   notes       String?
   createdAt   DateTime @default(now())
+}
+
+model SongVariant {
+  id          String   @id @default(uuid())
+  song        Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  name        String
+  structure   Json
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  SetlistSong SetlistSong[]
 }

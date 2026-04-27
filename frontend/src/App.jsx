@@ -5,6 +5,7 @@ import SongList from './pages/SongList';
 import SongViewer from './pages/SongViewer';
 import SongImporter from './pages/SongImporter';
 import SongEditor from './pages/SongEditor';
+import VariantEditor from './pages/VariantEditor';
 import SetlistList from './pages/SetlistList';
 import SetlistViewer from './pages/SetlistViewer';
 import Users from './pages/Users';
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/songs" element={<SongList user={user} />} />
             <Route path="/songs/import" element={<SongImporter />} />
             <Route path="/songs/:id/edit" element={user.role === 'ADMIN' || user.role === 'MUSICIAN' ? <SongEditor /> : <Navigate to="/songs" />} />
+            <Route path="/songs/:id/variants/new" element={user.role === 'ADMIN' || user.role === 'MUSICIAN' ? <VariantEditor user={user} /> : <Navigate to="/songs" />} />
             <Route path="/songs/:id" element={<SongViewer user={user} />} />
             <Route path="/setlists" element={<SetlistList user={user} />} />
             <Route path="/setlists/:id" element={<SetlistViewer user={user} />} />

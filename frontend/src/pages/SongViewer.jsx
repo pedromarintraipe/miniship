@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
 import { transposeChords, transposeChordLine } from '../utils/transpose';
-import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
+import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight, Edit2, GitBranch, ChevronDown } from 'lucide-react';
 
 export default function SongViewer({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [song, setSong] = useState(null);
+  const [variants, setVariants] = useState([]);
+  const [selectedVariantId, setSelectedVariantId] = useState('');
+  const [showVariantMenu, setShowVariantMenu] = useState(false);
   const [targetKey, setTargetKey] = useState('');
   const [fontSize, setFontSize] = useState(user.fontSize || 16);
   const [isFocusMode, setIsFocusMode] = useState(false);
@@ -21,14 +24,20 @@ export default function SongViewer({ user }) {
   useEffect(() => {
     fetchApi(`/songs/${id}`).then(data => {
       setSong(data);
-      // Initialize with setlist's selected key if coming from there, otherwise originalKey
       if (currentIndex !== -1 && setCtx.songs[currentIndex].key) {
         setTargetKey(setCtx.songs[currentIndex].key);
       } else {
         setTargetKey(data.originalKey);
       }
     }).catch(console.error);
-  }, [id, currentIndex, setCtx]);
+
+    fetchApi(`/variants?songId=${id}&userId=${user.id}`).then(data => {
+      setVariants(data);
+      if (currentIndex !== -1 && setCtx.songs[currentIndex].variantId) {
+        setSelectedVariantId(setCtx.songs[currentIndex].variantId);
+      }
+    }).catch(console.error);
+  }, [id, currentIndex, setCtx, user.id]);
 
   if (!song) return <div className="p-8 text-white">Cargando...</div>;
 
@@ -202,8 +211,8 @@ export default function SongViewer({ user }) {
               <ArrowLeft size={20} className="text-white" />
             </button>
             <div className="truncate">
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white truncate">{song.title}</h1>
-              <p className="text-slate-400 font-medium truncate">{song.artist}</p>
+              <h1 className="text-xl md:text-4xl font-extrabold tracking-tight text-white truncate">{song.title}</h1>
+              <p className="text-xs md:text-base text-slate-400 font-medium truncate">{song.artist}</p>
             </div>
           </div>
           
@@ -235,9 +244,14 @@ export default function SongViewer({ user }) {
               <Maximize2 size={18} />
             </button>
             {isMusician && (
-              <button onClick={() => navigate(`/songs/${id}/edit`)} title="Editar Canción" className="p-1.5 hover:bg-blue-500/10 text-slate-300 hover:text-blue-400 rounded-lg transition-colors pr-2">
-                <Edit2 size={18} />
-              </button>
+              <>
+                <button onClick={() => navigate(`/songs/${id}/edit`)} title="Editar Canción" className="p-1.5 hover:bg-blue-500/10 text-slate-300 hover:text-blue-400 rounded-lg transition-colors">
+                  <Edit2 size={18} />
+                </button>
+                <button onClick={() => navigate(`/songs/${id}/variants/new`)} title="Crear Variante" className="p-1.5 hover:bg-purple-500/10 text-slate-300 hover:text-purple-400 rounded-lg transition-colors pr-2">
+                  <GitBranch size={18} />
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -274,12 +288,53 @@ export default function SongViewer({ user }) {
 
       {isFocusMode && (
         <div className="sticky top-0 w-full p-4 bg-gradient-to-b from-black/80 to-transparent z-10 text-center pointer-events-none mb-4">
-          <h2 className="text-2xl font-bold text-white opacity-80">{song.title}</h2>
+          <h2 className="text-lg md:text-2xl font-bold text-white opacity-80">{song.title}</h2>
+        </div>
+      )}
+
+      {/* Select Variant Wrapper */}
+      {!isFocusMode && variants.length > 0 && (
+        <div className="flex justify-center -mt-6 mb-6 relative z-30">
+          <div className="relative">
+            <button
+              onClick={() => setShowVariantMenu(!showVariantMenu)}
+              className="bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-xl px-5 py-2.5 rounded-full flex items-center gap-3 transition-colors shadow-lg"
+            >
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Versión:</span>
+              <span className="text-sm font-bold text-white pr-2">
+                {selectedVariantId ? variants.find(v => v.id === selectedVariantId)?.name : 'Original'}
+              </span>
+              <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${showVariantMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showVariantMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowVariantMenu(false)}></div>
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-56 bg-black/80 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <button
+                    onClick={() => { setSelectedVariantId(''); setShowVariantMenu(false); }}
+                    className={`w-full text-left px-5 py-3.5 text-sm font-medium transition-colors ${!selectedVariantId ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                  >
+                    Original
+                  </button>
+                  {variants.map(v => (
+                    <button
+                      key={v.id}
+                      onClick={() => { setSelectedVariantId(v.id); setShowVariantMenu(false); }}
+                      className={`w-full text-left px-5 py-3.5 text-sm font-medium transition-colors border-t border-white/5 ${selectedVariantId === v.id ? 'bg-purple-500/20 text-purple-300' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
       <div className={`space-y-12 ${isFocusMode ? 'px-4 md:px-24 mx-auto max-w-5xl pt-4' : 'px-4'}`} style={{ fontSize: `${fontSize}px` }}>
-        {song.structure?.sections?.map((section, idx) => {
+        {(selectedVariantId ? variants.find(v => v.id === selectedVariantId)?.structure : song.structure)?.sections?.map((section, idx) => {
           const styles = getSectionStyles(section.type);
           return (
             <div key={idx} className={`relative p-8 md:p-10 rounded-[2.5rem] border border-white/10 transition-all ${styles.bg} ${styles.glow} ${isFocusMode ? 'border-transparent bg-transparent shadow-none' : ''}`}>

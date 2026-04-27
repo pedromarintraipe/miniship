@@ -23,10 +23,13 @@ router.get('/', async (req, res) => {
     OR: [
       { title: { contains: search, mode: 'insensitive' } },
       { artist: { contains: search, mode: 'insensitive' } },
-      // PostgreSQL full text search could be used on JSON structure but basic text match works for simplicity
     ]
   } : {};
-  const songs = await prisma.song.findMany({ where, orderBy: { title: 'asc' } });
+  const songs = await prisma.song.findMany({ 
+    where, 
+    orderBy: { title: 'asc' },
+    include: { SongVariant: { select: { id: true, name: true } } }
+  });
   res.json(songs);
 });
 

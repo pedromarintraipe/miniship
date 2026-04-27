@@ -14,6 +14,7 @@ app.use(express.json());
 app.use('/api/songs', require('./routes/songs'));
 app.use('/api/setlists', require('./routes/setlists'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/variants', require('./routes/variants'));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     orderBy: { date: 'desc' },
     include: {
       SetlistSong: {
-        include: { song: true },
+        include: { song: true, variant: true },
         orderBy: { position: 'asc' }
       }
     }
@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
     where: { id: req.params.id },
     include: {
         SetlistSong: {
-          include: { song: true },
+          include: { song: true, variant: true },
           orderBy: { position: 'asc' }
         }
     }
@@ -55,16 +55,18 @@ router.delete('/:id', async (req, res) => {
 // Setlist Songs
 router.post('/:setlistId/songs', async (req, res) => {
   const { setlistId } = req.params;
-  const { songId, position, selectedKey, notes } = req.body;
+  const { songId, variantId, position, selectedKey, notes } = req.body;
   
   const setlistSong = await prisma.setlistSong.create({
     data: {
       setlistId,
       songId,
+      ...(variantId && { variantId }),
       position,
       selectedKey,
       notes
-    }
+    },
+    include: { song: true, variant: true }
   });
   res.json(setlistSong);
 });

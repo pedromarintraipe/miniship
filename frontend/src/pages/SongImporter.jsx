@@ -67,13 +67,13 @@ export default function SongImporter() {
         {/* Glow effect for scraper */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
         
-        <h2 className="text-sm text-blue-400 font-bold mb-4 uppercase tracking-widest relative z-10">Importación Automática (CifraClub)</h2>
+        <h2 className="text-sm text-blue-400 font-bold mb-4 uppercase tracking-widest relative z-10">Importación Automática (CifraClub / LaCuerda)</h2>
         <div className="flex flex-col md:flex-row gap-4 relative z-10">
           <input 
             type="url" 
             value={url} 
             onChange={e => setUrl(e.target.value)} 
-            placeholder="Pegar URL de CifraClub aquí..." 
+            placeholder="Pegar URL de CifraClub o LaCuerda aquí..." 
             className="flex-1 p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-white placeholder:text-slate-500 font-medium"
           />
           <button 

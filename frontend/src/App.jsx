@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import SongList from './pages/SongList';
 import SongViewer from './pages/SongViewer';
 import SongImporter from './pages/SongImporter';
+import SongEditor from './pages/SongEditor';
 import SetlistList from './pages/SetlistList';
 import SetlistViewer from './pages/SetlistViewer';
 import Users from './pages/Users';
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/songs" replace />} />
             <Route path="/songs" element={<SongList user={user} />} />
             <Route path="/songs/import" element={<SongImporter />} />
+            <Route path="/songs/:id/edit" element={user.role === 'ADMIN' || user.role === 'MUSICIAN' ? <SongEditor /> : <Navigate to="/songs" />} />
             <Route path="/songs/:id" element={<SongViewer user={user} />} />
             <Route path="/setlists" element={<SetlistList user={user} />} />
             <Route path="/setlists/:id" element={<SetlistViewer user={user} />} />

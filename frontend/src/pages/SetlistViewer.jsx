@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
-import { ArrowLeft, Music, Plus, Trash2, Edit2 } from 'lucide-react';
+import { ArrowLeft, Music, Plus, Trash2, Edit2, ChevronUp, ChevronDown } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import PromptModal from '../components/PromptModal';
 
@@ -87,6 +87,33 @@ export default function SetlistViewer({ user }) {
     }
   };
 
+  const moveSong = async (currentIndex, direction) => {
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= setlist.SetlistSong.length) return;
+
+    const currentSong = setlist.SetlistSong[currentIndex];
+    const neighborSong = setlist.SetlistSong[targetIndex];
+
+    try {
+      // Swap positions in database
+      await Promise.all([
+        fetchApi(`/setlists/songs/${currentSong.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ position: neighborSong.position })
+        }),
+        fetchApi(`/setlists/songs/${neighborSong.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ position: currentSong.position })
+        })
+      ]);
+
+      const updated = await fetchApi(`/setlists/${id}`);
+      setSetlist(updated);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   if (!setlist) return <div className="p-8">Cargando...</div>;
 
   return (
@@ -151,6 +178,25 @@ export default function SetlistViewer({ user }) {
               </div>
               
               <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 pl-8 md:pl-0 w-full md:w-auto">
+                {/* Reorder Controls */}
+                <div className="flex flex-row md:flex-col gap-1 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => moveSong(idx, -1)} 
+                    disabled={idx === 0}
+                    className="p-1 hover:bg-white/10 text-slate-500 hover:text-white disabled:opacity-0 transition-all rounded-md"
+                    title="Subir"
+                  >
+                    <ChevronUp size={18} />
+                  </button>
+                  <button 
+                    onClick={() => moveSong(idx, 1)} 
+                    disabled={idx === setlist.SetlistSong.length - 1}
+                    className="p-1 hover:bg-white/10 text-slate-500 hover:text-white disabled:opacity-0 transition-all rounded-md"
+                    title="Bajar"
+                  >
+                    <ChevronDown size={18} />
+                  </button>
+                </div>
                 <div className="flex items-center gap-2 md:gap-3">
                   <span className="text-[10px] md:text-sm text-slate-400 font-bold uppercase tracking-wider hidden sm:inline-block">Tono:</span>
                   <input 

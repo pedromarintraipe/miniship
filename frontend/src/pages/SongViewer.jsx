@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
 import { transposeChords, transposeChordLine } from '../utils/transpose';
-import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
 
 export default function SongViewer({ user }) {
   const { id } = useParams();
@@ -62,6 +62,109 @@ export default function SongViewer({ user }) {
 
   const handleNavigateSetlist = (targetId) => {
     navigate(`/songs/${targetId}`, { state: { setCtx }, replace: true });
+  };
+
+  const getSectionStyles = (type) => {
+    const t = type.toUpperCase();
+    if (t.includes('CORO') || t.includes('CHORUS')) {
+      return {
+        label: 'text-orange-400',
+        border: 'from-orange-500 via-red-500 to-orange-500',
+        bg: 'bg-orange-500/5',
+        glow: 'shadow-[0_0_40px_rgba(249,115,22,0.15)]'
+      };
+    }
+    if (t.includes('PUENTE') || t.includes('BRIDGE')) {
+      return {
+        label: 'text-purple-400',
+        border: 'from-purple-500 via-indigo-500 to-purple-500',
+        bg: 'bg-purple-500/5',
+        glow: 'shadow-[0_0_40px_rgba(139,92,246,0.15)]'
+      };
+    }
+    if (t.includes('INTRO') || t.includes('OUTRO') || t.includes('TAG')) {
+      return {
+        label: 'text-slate-400',
+        border: 'from-slate-500 via-gray-600 to-slate-500',
+        bg: 'bg-white/5',
+        glow: ''
+      };
+    }
+    return {
+      label: 'text-blue-400',
+      border: 'from-blue-500 via-cyan-500 to-blue-500',
+      bg: 'bg-blue-500/5',
+      glow: 'shadow-[0_0_40px_rgba(59,130,246,0.15)]'
+    };
+  };
+
+  const renderPerfectAlignment = (line, origKey, tKey) => {
+    if (!line.chordLine && !line.lyrics) return null;
+    
+    const transposedChordLine = line.chordLine ? transposeChordLine(String(line.chordLine), origKey, tKey) : "";
+    const lyrics = line.lyrics || "";
+
+    if (!transposedChordLine || !isMusician) {
+      return (
+        <div className="font-medium text-slate-100 py-1" style={{ minHeight: '1.2em' }}>
+          {lyrics || '\u00A0'}
+        </div>
+      );
+    }
+
+    // Si no hay letra, renderizamos la línea de acordes con su espaciado original
+    if (!lyrics.trim()) {
+      return (
+        <div className="text-blue-400 font-bold font-mono whitespace-pre py-2 brightness-125 text-[0.9em]">
+          {transposedChordLine}
+        </div>
+      );
+    }
+
+    const regex = /([A-G][b#]?[\w/#]*)/g;
+    const chordsInLine = [];
+    let match;
+    while ((match = regex.exec(transposedChordLine)) !== null) {
+      chordsInLine.push({ chord: match[0], index: match.index });
+    }
+
+    if (chordsInLine.length === 0) {
+      return <div className="font-medium text-slate-100 py-1">{lyrics || '\u00A0'}</div>;
+    }
+
+    let segments = [];
+    let lastIndex = 0;
+
+    chordsInLine.forEach((c, i) => {
+      if (c.index > lastIndex) {
+        segments.push({ text: lyrics.slice(lastIndex, c.index), chord: null });
+      }
+      let nextChordIndex = chordsInLine[i+1] ? chordsInLine[i+1].index : Math.max(lyrics.length, transposedChordLine.length);
+      let part = lyrics.slice(c.index, nextChordIndex);
+      segments.push({ text: part || "  ", chord: c.chord });
+      lastIndex = nextChordIndex;
+    });
+
+    if (lastIndex < lyrics.length) {
+      segments.push({ text: lyrics.slice(lastIndex), chord: null });
+    }
+
+    return (
+      <div className="flex flex-wrap items-end gap-y-6 pt-6 pb-2">
+        {segments.map((seg, idx) => (
+          seg.chord ? (
+            <ruby key={idx} className="relative mr-0">
+              <span className="text-slate-100 whitespace-pre">{seg.text}</span>
+              <rt className="absolute left-0 bottom-full mb-1 text-blue-400 font-bold font-mono text-[0.8em] tracking-tight brightness-125 whitespace-nowrap">
+                {seg.chord}
+              </rt>
+            </ruby>
+          ) : (
+            <span key={idx} className="text-slate-100 whitespace-pre">{seg.text}</span>
+          )
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -128,9 +231,14 @@ export default function SongViewer({ user }) {
             <button onClick={() => setFontSize(f => Math.max(12, f - 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A-</button>
             <button onClick={() => setFontSize(f => Math.min(32, f + 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A+</button>
             <div className="w-px h-6 bg-white/10 mx-1 md:mx-2"></div>
-            <button onClick={() => setIsFocusMode(true)} title="Modo Lectura" className="p-1.5 hover:bg-white/10 rounded-lg text-slate-300 hover:text-white transition-colors pr-2">
+            <button onClick={() => setIsFocusMode(true)} title="Modo Lectura" className="p-1.5 hover:bg-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
               <Maximize2 size={18} />
             </button>
+            {isMusician && (
+              <button onClick={() => navigate(`/songs/${id}/edit`)} title="Editar Canción" className="p-1.5 hover:bg-blue-500/10 text-slate-300 hover:text-blue-400 rounded-lg transition-colors pr-2">
+                <Edit2 size={18} />
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -170,53 +278,28 @@ export default function SongViewer({ user }) {
         </div>
       )}
 
-      <div className={`space-y-8 ${isFocusMode ? 'px-4 md:px-24 mx-auto max-w-5xl pt-4' : 'px-4'}`} style={{ fontSize: `${fontSize}px` }}>
-        {song.structure?.sections?.map((section, idx) => (
-          <div key={idx} className={`bg-white/5 p-6 md:p-8 rounded-3xl border border-white/10 relative overflow-hidden backdrop-blur-xl shadow-2xl group transition-all hover:bg-white/10 hover:border-white/20 ${isFocusMode ? 'border-transparent bg-transparent shadow-none hover:bg-transparent' : ''}`}>
-            {/* Vibrant floating glow for sections */}
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 via-purple-400 to-blue-500 opacity-80"></div>
-            
-            <h3 className="text-orange-400 font-extrabold tracking-widest mb-6 uppercase" style={{ fontSize: '0.85rem' }}>[{section.type}]</h3>
-            <div className="space-y-4">
-              {section.lines.map((line, lIdx) => {
-                let transposedContent = null;
-                try {
-                  const origKey = song.originalKey || 'C';
-                  const tKey = targetKey || origKey;
-                  
-                  if (line.chordLine) {
-                    const tString = transposeChordLine(String(line.chordLine), origKey, tKey);
-                    transposedContent = (
-                      <div className="text-blue-400 font-bold mb-1 font-mono whitespace-pre overflow-x-auto brightness-125" style={{ fontSize: '0.85em' }}>
-                        {tString}
-                      </div>
-                    );
-                  } else {
-                    const tArray = tKey ? transposeChords(line.chords || [], origKey, tKey) : (line.chords || []);
-                    if (tArray && tArray.length > 0) {
-                      transposedContent = (
-                        <div className="text-blue-400 font-bold mb-1 font-mono whitespace-pre overflow-x-auto brightness-125" style={{ fontSize: '0.85em' }}>
-                          {tArray.join('    ')}
-                        </div>
-                      );
-                    }
-                  }
-                } catch (e) {
-                   console.error("Render error on line", line, e);
-                }
+      <div className={`space-y-12 ${isFocusMode ? 'px-4 md:px-24 mx-auto max-w-5xl pt-4' : 'px-4'}`} style={{ fontSize: `${fontSize}px` }}>
+        {song.structure?.sections?.map((section, idx) => {
+          const styles = getSectionStyles(section.type);
+          return (
+            <div key={idx} className={`relative p-8 md:p-10 rounded-[2.5rem] border border-white/10 transition-all ${styles.bg} ${styles.glow} ${isFocusMode ? 'border-transparent bg-transparent shadow-none' : ''}`}>
+              <div className="flex items-center gap-3 mb-8">
+                <span className={`text-[0.7rem] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full bg-white/5 border border-white/10 ${styles.label}`}>
+                  {section.type}
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+              </div>
 
-                return (
-                  <div key={lIdx} className="leading-tight">
-                    {isMusician && transposedContent}
-                    <div className="font-medium text-slate-100" style={{ minHeight: '1.5em' }}>
-                      {line.lyrics || '\u00A0'}
-                    </div>
+              <div className="space-y-2">
+                {section.lines.map((line, lIdx) => (
+                  <div key={lIdx}>
+                    {renderPerfectAlignment(line, song.originalKey || 'C', targetKey || song.originalKey || 'C')}
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { transposeChords } = require('../utils/transpose');
 const { parseRawSongText } = require('../utils/parser');
-const { scrapeCifraClub } = require('../utils/scraper');
+const { scrapeUrl } = require('../utils/scraper');
 const prisma = new PrismaClient();
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.post('/scrape', async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL requerida' });
   try {
-    const data = await scrapeCifraClub(url);
+    const data = await scrapeUrl(url);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });

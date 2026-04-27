@@ -19,6 +19,12 @@ export default function App() {
     if (stored) setUser(JSON.parse(stored));
   }, []);
 
+  const updateUserPreferences = (newPrefs) => {
+    const updatedUser = { ...user, ...newPrefs };
+    setUser(updatedUser);
+    localStorage.setItem('worship_user', JSON.stringify(updatedUser));
+  };
+
   if (!user) {
     return <Login onLogin={setUser} />;
   }
@@ -38,7 +44,7 @@ export default function App() {
             <Route path="/songs/import" element={<SongImporter />} />
             <Route path="/songs/:id/edit" element={user.role === 'ADMIN' || user.role === 'MUSICIAN' ? <SongEditor /> : <Navigate to="/songs" />} />
             <Route path="/songs/:id/variants/new" element={user.role === 'ADMIN' || user.role === 'MUSICIAN' ? <VariantEditor user={user} /> : <Navigate to="/songs" />} />
-            <Route path="/songs/:id" element={<SongViewer user={user} />} />
+            <Route path="/songs/:id" element={<SongViewer user={user} updateUserPreferences={updateUserPreferences} />} />
             <Route path="/setlists" element={<SetlistList user={user} />} />
             <Route path="/setlists/:id" element={<SetlistViewer user={user} />} />
             <Route path="/users" element={user.role === 'ADMIN' ? <Users /> : <div className="p-8">Acceso Denegado</div>} />

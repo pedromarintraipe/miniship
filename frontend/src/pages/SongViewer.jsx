@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { fetchApi } from '../utils/api';
 import { transposeChords, transposeChordLine } from '../utils/transpose';
-import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight, Edit2, GitBranch, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowDown, ArrowUp, Maximize2, Minimize2, ChevronLeft, ChevronRight, Edit2, GitBranch, ChevronDown, Guitar } from 'lucide-react';
 
-export default function SongViewer({ user }) {
+export default function SongViewer({ user, updateUserPreferences }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,7 +14,31 @@ export default function SongViewer({ user }) {
   const [showVariantMenu, setShowVariantMenu] = useState(false);
   const [targetKey, setTargetKey] = useState('');
   const [fontSize, setFontSize] = useState(user.fontSize || 16);
+  const [showChords, setShowChords] = useState(user.showChords ?? true);
   const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Funciones para actualizar estado local y remoto de preferencias
+  const handleSetFontSize = (updater) => {
+    setFontSize(prev => {
+      const newSize = typeof updater === 'function' ? updater(prev) : updater;
+      if (updateUserPreferences) {
+        updateUserPreferences({ fontSize: newSize });
+        fetchApi(`/users/${user.id}/preferences`, { method: 'PUT', body: JSON.stringify({ fontSize: newSize }) }).catch(console.error);
+      }
+      return newSize;
+    });
+  };
+
+  const handleToggleChords = () => {
+    setShowChords(prev => {
+      const newVal = !prev;
+      if (updateUserPreferences) {
+        updateUserPreferences({ showChords: newVal });
+        fetchApi(`/users/${user.id}/preferences`, { method: 'PUT', body: JSON.stringify({ showChords: newVal }) }).catch(console.error);
+      }
+      return newVal;
+    });
+  };
 
   const setCtx = location.state?.setCtx;
   const currentIndex = setCtx ? setCtx.songs.findIndex(s => String(s.id) === String(id)) : -1;
@@ -113,7 +137,7 @@ export default function SongViewer({ user }) {
     const transposedChordLine = line.chordLine ? transposeChordLine(String(line.chordLine), origKey, tKey) : "";
     const lyrics = line.lyrics || "";
 
-    if (!transposedChordLine || !isMusician) {
+    if (!transposedChordLine || !isMusician || !showChords) {
       return (
         <div className="font-medium text-slate-100 py-1" style={{ minHeight: '1.2em' }}>
           {lyrics || '\u00A0'}
@@ -237,9 +261,23 @@ export default function SongViewer({ user }) {
               </>
             )}
 
-            <button onClick={() => setFontSize(f => Math.max(12, f - 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A-</button>
-            <button onClick={() => setFontSize(f => Math.min(32, f + 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A+</button>
+            <button onClick={() => handleSetFontSize(f => Math.max(12, f - 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A-</button>
+            <button onClick={() => handleSetFontSize(f => Math.min(32, f + 2))} className="p-1.5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition-colors">A+</button>
             <div className="w-px h-6 bg-white/10 mx-1 md:mx-2"></div>
+            
+            {isMusician && (
+              <>
+                <button 
+                  onClick={handleToggleChords} 
+                  title={showChords ? "Ocultar Acordes" : "Mostrar Acordes"} 
+                  className={`p-1.5 rounded-lg transition-colors ${showChords ? 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30' : 'hover:bg-white/10 text-slate-300 hover:text-white'}`}
+                >
+                  <Guitar size={18} />
+                </button>
+                <div className="w-px h-6 bg-white/10 mx-1 md:mx-2"></div>
+              </>
+            )}
+
             <button onClick={() => setIsFocusMode(true)} title="Modo Lectura" className="p-1.5 hover:bg-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
               <Maximize2 size={18} />
             </button>
@@ -277,9 +315,22 @@ export default function SongViewer({ user }) {
             </>
           )}
 
-          <button onClick={() => setFontSize(f => Math.max(12, f - 2))} className="p-2 hover:bg-white/10 rounded-xl text-sm font-bold text-white transition-colors">A-</button>
-          <button onClick={() => setFontSize(f => Math.min(32, f + 2))} className="p-2 hover:bg-white/10 rounded-xl text-sm font-bold text-white transition-colors">A+</button>
+          <button onClick={() => handleSetFontSize(f => Math.max(12, f - 2))} className="p-2 hover:bg-white/10 rounded-xl text-sm font-bold text-white transition-colors">A-</button>
+          <button onClick={() => handleSetFontSize(f => Math.min(32, f + 2))} className="p-2 hover:bg-white/10 rounded-xl text-sm font-bold text-white transition-colors">A+</button>
           <div className="w-px h-6 bg-white/10 mx-1 md:mx-2"></div>
+          
+          {isMusician && (
+            <>
+              <button 
+                onClick={handleToggleChords} 
+                title={showChords ? "Ocultar Acordes" : "Mostrar Acordes"} 
+                className={`p-2 rounded-xl transition-colors ${showChords ? 'text-purple-400 hover:bg-purple-500/20' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+              >
+                <Guitar size={18} />
+              </button>
+              <div className="w-px h-6 bg-white/10 mx-1 md:mx-2"></div>
+            </>
+          )}
           <button onClick={() => setIsFocusMode(false)} title="Salir de Modo Lectura" className="p-2 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl transition-colors">
             <Minimize2 size={18} />
           </button>

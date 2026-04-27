@@ -63,4 +63,21 @@ router.put('/:id/role', async (req, res) => {
   }
 });
 
+router.put('/:id/preferences', async (req, res) => {
+  const { showChords, fontSize } = req.body;
+  try {
+    const data = {};
+    if (showChords !== undefined) data.showChords = showChords;
+    if (fontSize !== undefined) data.fontSize = fontSize;
+    
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data
+    });
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: 'Error actualizando preferencias' });
+  }
+});
+
 module.exports = router;

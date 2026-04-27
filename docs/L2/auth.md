@@ -25,6 +25,6 @@ Gestionar la identidad de los usuarios y controlar el acceso a funciones crític
 3. **Validación Backend**: Aunque el UI esté oculto, el Backend debe validar el rol en las rutas `POST`, `PUT` y `DELETE`.
 
 ## Preferencias de Perfil
-El sistema de autenticación carga automáticamente las preferencias de lectura del usuario:
+El sistema de autenticación carga automáticamente las preferencias de lectura del usuario, las cuales se pueden modificar dinámicamente y se guardan a través del endpoint `PUT /api/users/:id/preferences`:
 - **fontSize**: Tamaño de fuente base para el visor.
-- **showChords**: Estado inicial de los acordes en el `SongViewer`.
+- **showChords**: Estado del "Modo Vista" en el `SongViewer` (al apagarlo, oculta acordes simulando una vista de vocalista).
